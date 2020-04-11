@@ -21,6 +21,8 @@ blogRouter.post('/', async (request, response, next) => {
       url: url,
       author: author,
       likes: likes === undefined ? 0 : likes,
+      //get id of user from user variable
+      user: user._id,
     });
 
     const savedBlog = await blog.save();
