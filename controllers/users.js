@@ -8,7 +8,7 @@ userRouter.post('/', async (req, res, next) => {
   if (!password || !username) {
     return res.status(400).send('Password or username is missing');
   }
-  if (password.length < 4 || username.length < 4) {
+  if (password.length < 3 || username.length < 3) {
     return res
       .status(400)
       .send('Password/username must be at least 3 characters long');
@@ -24,5 +24,7 @@ userRouter.post('/', async (req, res, next) => {
 
   const savedUser = await user.save();
 
-  res.json(savedUser);
+  res.status(200).json(savedUser);
 });
+
+module.exports = userRouter;
