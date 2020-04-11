@@ -11,6 +11,8 @@ const userSchema = mongoose.Schema({
   passwordHash: String,
 });
 
+userSchema.plugin(uniqueValidator);
+
 userSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
