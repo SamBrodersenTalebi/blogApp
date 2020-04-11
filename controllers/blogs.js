@@ -1,5 +1,6 @@
 const blogRouter = require('express').Router();
 const Blog = require('../models/Blog');
+const User = require('../models/User');
 
 blogRouter.get('/', (request, response) => {
   Blog.find({}).then((blogs) => {
@@ -7,16 +8,32 @@ blogRouter.get('/', (request, response) => {
   });
 });
 
-blogRouter.post('/', (request, response) => {
-  const { title, url } = request.body;
+blogRouter.post('/', async (request, response, next) => {
+  const { title, url, userId, author, likes } = request.body;
   if (!title & !url) {
     return response.status(400).json({ msg: 'missing parameters' });
   }
-  const blog = new Blog(request.body);
 
-  blog.save().then((result) => {
-    response.status(201).json(result);
-  });
+  try {
+    const user = await User.findById(userId);
+    console.log(user, userId);
+    const blog = new Blog({
+      title: title,
+      url: url,
+      author: author,
+      likes: likes === undefined ? 0 : likes,
+    });
+
+    const savedBlog = await blog.save();
+
+    //concat the blog id to user object
+    user.blogs = user.blogs.concat(savedBlog._id);
+    await user.save();
+
+    response.json(savedBlog.toJSON());
+  } catch (error) {
+    next(error);
+  }
 });
 
 blogRouter.delete('/:id', async (req, res) => {

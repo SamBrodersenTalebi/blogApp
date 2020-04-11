@@ -16,6 +16,7 @@ userRouter.post('/', async (req, res, next) => {
 
   try {
     const saltRounds = 10;
+    //When a password has been “hashed” it means it has been turned into a scrambled representation of itself
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     const user = new User({
@@ -33,7 +34,7 @@ userRouter.post('/', async (req, res, next) => {
 });
 
 //Get all users in db
-usersRouter.get('/', async (request, response) => {
+userRouter.get('/', async (request, response) => {
   const users = await User.find({});
   response.json(users.map((u) => u.toJSON()));
 });
