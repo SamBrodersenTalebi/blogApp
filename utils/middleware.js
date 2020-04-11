@@ -22,6 +22,8 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).json({ error: error.message });
   } else if (error.name === 'JsonWebTokenError') {
     return response.status(400).send({ error: 'invalid token' });
+  } else if (error.name === 'CastError') {
+    return response.status(404).json({ error: 'Blog not found' });
   }
 
   next(error);

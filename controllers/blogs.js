@@ -44,9 +44,25 @@ blogRouter.post(
   }
 );
 
-blogRouter.delete('/:id', async (req, res) => {
-  await Blog.findByIdAndRemove(req.params.id);
-  res.status(204).end();
+blogRouter.delete('/:id', middleware.tokenExtractor, async (req, res, next) => {
+  try {
+    let blog = await Blog.findById(req.params.id);
+
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    //Check user to see if it matches
+    //The id fetched from the database must be parsed into a string first
+    if (blog.user.toString() !== req.user.id) {
+      return res.status(401).json({ error: 'User not authorized' });
+    }
+
+    await blog.remove();
+    res.json({ message: 'Blog removed' });
+  } catch (error) {
+    next(error);
+  }
 });
 
 blogRouter.put('/:id', async (req, res) => {
