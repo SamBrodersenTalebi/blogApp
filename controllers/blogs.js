@@ -1,65 +1,48 @@
 const blogRouter = require('express').Router();
 const Blog = require('../models/Blog');
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-
-const getTokenFrom = (req) => {
-  const authorization = req.get('authorization');
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    //returns substring of the authorization
-    console.log(authorization);
-    return authorization.substring(7);
-  }
-  return null;
-};
+const middleware = require('../utils/middleware');
 
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
   response.json(blogs);
 });
 
-blogRouter.post('/', async (request, response, next) => {
-  const { title, url, userId, author, likes } = request.body;
-  if (!title & !url) {
-    return response.status(400).json({ msg: 'missing parameters' });
-  }
-
-  try {
-    //get token using function getTokenFrom
-    const token = getTokenFrom(request);
-    console.log(token);
-
-    const decodedToken = jwt.verify(token, process.env.SECRET);
-    console.log(decodedToken);
-
-    if (!token || !decodedToken) {
-      return response.status(401).json({ error: 'token missing or invalid' });
+blogRouter.post(
+  '/',
+  middleware.tokenExtractor,
+  async (request, response, next) => {
+    const { title, url, author, likes } = request.body;
+    if (!title & !url) {
+      return response.status(400).json({ msg: 'missing parameters' });
     }
 
-    //decoded object contains id and username specified in login router
-    const user = await User.findById(decodedToken.id);
-    console.log(decodedToken.id);
+    try {
+      //decoded object contains id and username specified in login router
+      const user = await User.findById(request.user.id);
+      console.log(request.user.id);
 
-    const blog = new Blog({
-      title: title,
-      url: url,
-      author: author,
-      likes: likes === undefined ? 0 : likes,
-      //get id of user from user variable
-      user: user._id,
-    });
+      const blog = new Blog({
+        title: title,
+        url: url,
+        author: author,
+        likes: likes === undefined ? 0 : likes,
+        //get id of user from user variable
+        user: user._id,
+      });
 
-    const savedBlog = await blog.save();
+      const savedBlog = await blog.save();
 
-    //concat the blog id to user object
-    user.blogs = user.blogs.concat(savedBlog._id);
-    await user.save();
+      //concat the blog id to user object
+      user.blogs = user.blogs.concat(savedBlog._id);
+      await user.save();
 
-    response.json(savedBlog.toJSON());
-  } catch (error) {
-    next(error);
+      response.json(savedBlog.toJSON());
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 blogRouter.delete('/:id', async (req, res) => {
   await Blog.findByIdAndRemove(req.params.id);
