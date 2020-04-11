@@ -32,4 +32,10 @@ userRouter.post('/', async (req, res, next) => {
   }
 });
 
+//Get all users in db
+usersRouter.get('/', async (request, response) => {
+  const users = await User.find({});
+  response.json(users.map((u) => u.toJSON()));
+});
+
 module.exports = userRouter;
