@@ -8,6 +8,7 @@ const userRouter = require('./controllers/users');
 const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
 const mongoose = require('mongoose');
+const testingRouter = require('./controllers/testing');
 
 logger.info('connecting to', config.MONGODB_URI);
 
@@ -31,6 +32,11 @@ app.use(middleware.requestLogger);
 app.use('/api/login', loginRouter);
 app.use('/api/blogs', blogRouter);
 app.use('/api/users', userRouter);
+
+if (process.env.NODE_ENV === 'test') {
+  console.log('testing mode');
+  app.use('/api/testing', testingRouter);
+}
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
