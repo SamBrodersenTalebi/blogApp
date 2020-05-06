@@ -32,6 +32,7 @@ const errorHandler = (error, request, response, next) => {
 const tokenExtractor = (req, res, next) => {
   //get token from header skip Bearer part with substring
   const token = req.get('authorization').substring(7);
+  console.log(token);
 
   const decodedToken = jwt.verify(token, process.env.SECRET);
 
@@ -42,6 +43,7 @@ const tokenExtractor = (req, res, next) => {
 
   //The object decoded from the token contains the username and id fields
   req.user = decodedToken;
+  console.log(decodedToken);
 
   next();
 };

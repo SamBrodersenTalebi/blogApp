@@ -20,7 +20,8 @@ blogRouter.post(
     try {
       //decoded object contains id and username specified in login router
       const user = await User.findById(request.user.id);
-      console.log(request.user.id);
+      console.log('req user: ', request.user);
+      console.log('id ', request.user.id);
 
       const blog = new Blog({
         title: title,
