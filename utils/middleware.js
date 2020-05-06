@@ -30,7 +30,7 @@ const errorHandler = (error, request, response, next) => {
 };
 
 const tokenExtractor = (req, res, next) => {
-  //get token from header
+  //get token from header skip Bearer part with substring
   const token = req.get('authorization').substring(7);
 
   const decodedToken = jwt.verify(token, process.env.SECRET);

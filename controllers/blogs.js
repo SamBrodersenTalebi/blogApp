@@ -47,13 +47,14 @@ blogRouter.post(
 blogRouter.delete('/:id', middleware.tokenExtractor, async (req, res, next) => {
   try {
     let blog = await Blog.findById(req.params.id);
-
+    console.log(blog);
     if (!blog) {
       return res.status(404).json({ error: 'Blog not found' });
     }
 
     //Check user to see if it matches
     //The id fetched from the database must be parsed into a string first
+    console.log(blog.user);
     if (blog.user.toString() !== req.user.id) {
       return res.status(401).json({ error: 'User not authorized' });
     }
@@ -73,6 +74,10 @@ blogRouter.put('/:id', async (req, res) => {
     url: url,
     likes: likes,
   };
-  await Blog.findByIdAndUpdate(req.params.id, blog, { new: true });
+  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, {
+    new: true,
+  });
+  console.log(updatedBlog);
+  res.status(201).json(updatedBlog.toJSON());
 });
 module.exports = blogRouter;

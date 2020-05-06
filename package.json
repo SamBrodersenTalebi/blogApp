@@ -23,6 +23,7 @@
     "mongoose-unique-validator": "^2.0.3"
   },
   "devDependencies": {
+    "eslint-plugin-jest": "^23.8.2",
     "jest": "^25.2.4",
     "supertest": "^4.0.2"
   },
