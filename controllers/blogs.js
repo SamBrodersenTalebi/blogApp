@@ -90,4 +90,28 @@ blogRouter.put('/:id', async (req, res) => {
   console.log(updatedBlog);
   res.status(201).json(updatedBlog.toJSON());
 });
+
+blogRouter.post('/:id/comments', async (req, res, next) => {
+  try {
+    const { comment } = req.body;
+    let blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+    //check to see if value of comments is array
+    if (Array.isArray(blog.comments)) {
+      blog.comments.push(comment);
+    } else {
+      //set to array
+      blog.comments = [comment];
+    }
+
+    const updatedBlog = await blog.save();
+    console.log(blog.comments);
+
+    res.status(200).json(updatedBlog.toJSON());
+  } catch (error) {
+    next(error);
+  }
+});
 module.exports = blogRouter;
