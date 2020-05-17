@@ -8,6 +8,15 @@ blogRouter.get('/', async (request, response) => {
   response.json(blogs);
 });
 
+blogRouter.get('/:id', async (request, response) => {
+  const id = request.params.id;
+  const blog = await Blog.findById({ _id: id }).populate('user', {
+    username: 1,
+    name: 1,
+  });
+  response.json(blog);
+});
+
 blogRouter.post(
   '/',
   middleware.tokenExtractor,
